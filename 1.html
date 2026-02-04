@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026马年好运签</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --main-red: #bd081c;
+            --gold: #f9d423;
+            --dark-gold: #c6a641;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle, #e62117 0%, #8b0000 100%);
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* 动态云纹背景装饰 */
+        .bg-deco {
+            position: absolute; width: 100%; height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/chinese-lanterns.png');
+            opacity: 0.2; pointer-events: none;
+        }
+
+        .container {
+            text-align: center; width: 85%; max-width: 400px;
+            padding: 40px 20px; border: 3px solid var(--gold);
+            border-radius: 20px; background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 15px var(--dark-gold);
+            position: relative; animation: fadeIn 1.2s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: var(--gold); font-size: 2rem; text-shadow: 2px 2px 4px #000; margin-bottom: 30px; }
+        
+        .horse-icon { font-size: 50px; margin-bottom: 10px; display: block; }
+
+        .blessing-card {
+            min-height: 120px; display: flex; align-items: center; justify-content: center;
+            background: #fff; color: var(--main-red);
+            padding: 20px; border-radius: 10px; font-size: 1.4rem;
+            font-weight: bold; line-height: 1.5; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin-bottom: 30px; position: relative;
+            transform: scale(0); animation: pop 0.5s forwards 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop { to { transform: scale(1); } }
+
+        .btn {
+            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            color: #8b0000; border: none; padding: 12px 30px;
+            font-size: 1.1rem; font-weight: bold; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.3s;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        .footer { position: absolute; bottom: 20px; color: var(--gold); font-size: 0.8rem; opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div class="bg-deco"></div>
+    <div class="container">
+        <span class="horse-icon">🏇</span>
+        <h1>2026 丙午马年</h1>
+        <div class="blessing-card" id="blessingText">正在为你抽取好运...</div>
+        <button class="btn" onclick="draw()">换一个好运</button>
+        <div class="footer">© 2026 岁在丙午 · 见者有福</div>
+    </div>
+
+    <script>
+        const blessings = [
+            "马到成功，一马当先，龙马精神，新年大吉！",
+            "策马奔腾迎新春，事业腾飞步步高！",
+            "马蹄声声辞旧岁，吉祥如意贺新年。",
+            "马年行大运，万事皆顺心！",
+            "金马送福，祝你财源广进，笑口常开！",
+            "马年鸿运当头，家庭幸福美满！",
+            "骏马驰骋前程广，好运相伴福满门。",
+            "马年扬鞭跃新程，梦想成真事业兴。",
+            "一马当先创大业，四季平安家兴旺。",
+            "马踏春风来，福气卷滚滚！",
+            "马年马上有财，马上有喜，马上有福！",
+            "马蹄疾驰送安康，阖家欢乐岁岁长。",
+            "金马献瑞，祝你健康长寿，快乐永驻！",
+            "马年奋蹄，步步高升；人生得意，事事顺心！",
+            "万马奔腾迎新春，福禄寿喜聚满门。",
+            "马到功成事业旺，家和业兴福绵长。",
+            "春风得意马蹄轻，好运连连福星照。",
+            "马年送骏马，生活如画，幸福无涯！",
+            "跃马争春，财源茂盛；同心协力，再创辉煌！",
+            "马年行马运，天天好心情！",
+            "马蹄哒哒响，好事连连到；新年新气象，梦想皆成真。",
+            "金马奔腾，带给你无限的活力与希望！",
+            "马年吉祥，愿你像骏马一样勇往直前！",
+            "马嘶传喜讯，燕语报佳音，祝你新年快乐！",
+            "马踏祥云至，福禄寿喜齐，阖家乐融融。",
+            "马年奔腾不息，好运持续不断！",
+            "立马千山外，祝福依然在；愿你马年事事顺！",
+            "马年新气象，奋发“马”强，前程似锦！",
+            "骏马驮来丰收年，欢声笑语满人间。",
+            "马到成功事业顺，人强马壮身体棒！",
+            "马年奔腾，梦想起飞；好运相伴，幸福相随！",
+            "一马当先，愿你领先每一天！",
+            "马年马上有一切，快乐健康不停歇！",
+            "策马扬鞭，奔向更加灿烂的明天！",
+            "马鸣春风，福满乾坤；新年新禧，万事如意。",
+            "金马贺岁，欢乐祥瑞；阖家团圆，其乐融融。",
+            "马年到来精神抖，万事如意乐开怀！",
+            "马踏飞燕送吉祥，祝你新年福寿长！",
+            "马年奔腾开胜景，春风浩荡展宏图。",
+            "人欢马叫春来到，福星高照乐逍遥。",
+            "马年送福，马到成功，马上开心！",
+            "马蹄留胜迹，新年谱新篇，祝你大展宏图！",
+            "马年行好运，笑口常常开！",
+            "龙马精神伴你行，健康快乐永相随！",
+            "马跃千山传喜讯，福临万家贺新春。",
+            "马年奋进，好事成双；家庭美满，幸福安康！",
+            "骏马奔驰，带走烦恼；春风送暖，迎来吉祥。",
+            "马年大吉，愿你马上有对象，马上有新房！",
+            "马不停蹄奔前程，祝你新年事业爱情双丰收！",
+            "马年到，问声好；祝你：身体棒，财运高，步步顺，乐陶陶！"
+        ];
+
+        function draw() {
+            // 礼花特效
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#f9d423', '#bd081c', '#ffffff']
+            });
+
+            const textEl = document.getElementById('blessingText');
+            // 添加一个简单的切换动画
+            textEl.style.opacity = 0;
+            setTimeout(() => {
+                const random = blessings[Math.floor(Math.random() * blessings.length)];
+                textEl.innerText = random;
+                textEl.style.opacity = 1;
+            }, 200);
+        }
+
+        // 页面加载自动抽取一次
+        window.onload = draw;
+    </script>
+</body>
+</html>
